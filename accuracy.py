@@ -1,6 +1,6 @@
 import pandas as pd
 
-predictions_csv = "ensemble-max.csv"
+predictions_csv = "ensemble.csv"
 correct_csv = "correct-testing.csv"
 
 predictions = pd.read_csv(predictions_csv)

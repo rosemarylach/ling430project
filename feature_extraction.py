@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 
 training_dir = "training/"
 training_files = os.listdir(training_dir)
-samp_rate = 22050
+samp_rate = 44100
 phonemes = ["t", "th", "tt"]
 
 # create feature dataframe
 feature_names = ["mean", "stdev", "skew", "kurtosis", "zcr_mean", "zcr_stdev",
-                 "rmse_mean", "rmse_stdev", "tempo"] + \
+                 "rmse_mean", "rmse_stdev"] + \
                 ['mfccs_' + str(i+1) + '_mean' for i in range(20)] + \
                 ['mfccs_' + str(i+1) + '_stdev' for i in range(20)] + \
                 ['chroma_' + str(i+1) + '_mean' for i in range(12)] + \
@@ -52,7 +52,7 @@ for wav in training_files:
     kurtosis = scipy.stats.kurtosis(y)
 
     # zero crossing
-    zcr = librosa.feature.zero_crossing_rate(y + 0.0001, frame_length=2048, hop_length=512)[0]
+    zcr = librosa.feature.zero_crossing_rate(y + 0.0001, frame_length=1024, hop_length=256)[0]
     zcr_mean = np.mean(zcr)
     zcr_stdev = np.std(zcr)
 
@@ -61,16 +61,13 @@ for wav in training_files:
     rmse_mean = np.mean(rmse)
     rmse_stdev = np.mean(rmse)
 
-    # tempo
-    tempo = librosa.beat.tempo(y, sr=sr)
-
     # Mel-Frequency cepstral coefficients
     mfccs = librosa.feature.mfcc(y, sr=sr, n_mfcc=20)
     mfccs_mean = np.mean(mfccs, axis=1)
     mfccs_stdev = np.std(mfccs, axis=1)
 
     # chroma vector data
-    chroma = librosa.feature.chroma_stft(y, sr=sr, hop_length=1024)
+    chroma = librosa.feature.chroma_stft(y, sr=sr, hop_length=512)
     chroma_mean = np.mean(chroma, axis=1)
     chroma_stdev = np.std(chroma, axis=1)
 
@@ -94,7 +91,6 @@ for wav in training_files:
     feature_vect.extend([mean, stdev, skew, kurtosis])
     feature_vect.extend([zcr_mean, zcr_stdev])
     feature_vect.extend([rmse_mean, rmse_stdev])
-    feature_vect.extend(tempo)
     feature_vect.extend(mfccs_mean)
     feature_vect.extend(mfccs_stdev)
     feature_vect.extend(chroma_mean)
@@ -119,7 +115,7 @@ test_files = os.listdir(test_dir)
 
 # create feature dataframe
 test_names = ["mean", "stdev", "skew", "kurtosis", "zcr_mean", "zcr_stdev",
-                "rmse_mean", "rmse_stdev", "tempo"] + \
+                "rmse_mean", "rmse_stdev"] + \
                 ['mfccs_' + str(i+1) + '_mean' for i in range(20)] + \
                 ['mfccs_' + str(i+1) + '_stdev' for i in range(20)] + \
                 ['chroma_' + str(i+1) + '_mean' for i in range(12)] + \
@@ -147,7 +143,7 @@ for wav in test_files:
     kurtosis = scipy.stats.kurtosis(y)
 
     # zero crossing
-    zcr = librosa.feature.zero_crossing_rate(y + 0.0001, frame_length=2048, hop_length=512)[0]
+    zcr = librosa.feature.zero_crossing_rate(y + 0.0001, frame_length=1024, hop_length=256)[0]
     zcr_mean = np.mean(zcr)
     zcr_stdev = np.std(zcr)
 
@@ -156,16 +152,13 @@ for wav in test_files:
     rmse_mean = np.mean(rmse)
     rmse_stdev = np.mean(rmse)
 
-    # tempo
-    tempo = librosa.beat.tempo(y, sr=sr)
-
     # Mel-Frequency cepstral coefficients
     mfccs = librosa.feature.mfcc(y, sr=sr, n_mfcc=20)
     mfccs_mean = np.mean(mfccs, axis=1)
     mfccs_stdev = np.std(mfccs, axis=1)
 
     # chroma vector data
-    chroma = librosa.feature.chroma_stft(y, sr=sr, hop_length=1024)
+    chroma = librosa.feature.chroma_stft(y, sr=sr, hop_length=512)
     chroma_mean = np.mean(chroma, axis=1)
     chroma_stdev = np.std(chroma, axis=1)
 
@@ -189,7 +182,6 @@ for wav in test_files:
     test_vect.extend([mean, stdev, skew, kurtosis])
     test_vect.extend([zcr_mean, zcr_stdev])
     test_vect.extend([rmse_mean, rmse_stdev])
-    test_vect.extend(tempo)
     test_vect.extend(mfccs_mean)
     test_vect.extend(mfccs_stdev)
     test_vect.extend(chroma_mean)
@@ -213,7 +205,7 @@ for wav in test_files:
     y, sr = librosa.load(test_dir + wav, sr = samp_rate)
 
     # create spectrogram
-    spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=2048, hop_length=512, fmax=8000)
+    spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=2048, hop_length=128, fmax=8000)
     spec_dB = librosa.power_to_db(spec, ref=np.max)
 
     fig, ax = plt.subplots()
@@ -235,7 +227,7 @@ for wav in training_files:
     y, sr = librosa.load(training_dir + wav, sr = samp_rate)
 
     # create spectrogram
-    spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=2048, hop_length=512, fmax=8000)
+    spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=2048, hop_length=128, fmax=8000)
     spec_dB = librosa.power_to_db(spec, ref=np.max)
 
     fig, ax = plt.subplots()

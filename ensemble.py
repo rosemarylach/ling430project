@@ -14,8 +14,8 @@ features = pd.read_csv('training_features.csv')
 test_features = pd.read_csv('test_features.csv')
 
 # create feature dataframe
-feature_names = ["mean", "stdev", "skew", "kurtosis", "zcr_mean", "zcr_stdev",
-                 "rmse_mean", "rmse_stdev", "tempo"] + \
+feature_names = ["mean", "stdev", "skew", "kurtosis", # "zcr_mean", "zcr_stdev",
+                 "rmse_mean", "rmse_stdev"] + \
                 ['mfccs_' + str(i+1) + '_mean' for i in range(20)] + \
                 ['mfccs_' + str(i+1) + '_stdev' for i in range(20)] + \
                 ['chroma_' + str(i+1) + '_mean' for i in range(12)] + \
@@ -68,10 +68,11 @@ rf.fit(x_train, y_train)
 rf_predict = rf.predict_proba(x_test)
 
 # Aggregate Data
-combined_probs = np.hstack((rf_predict, svm_predict, mlp_predict, mlr_predict, knn_predict))
-pred = mlr.classes_[np.argmax(combined_probs, axis=1)%3]
+# combined_probs = np.hstack((rf_predict, svm_predict, mlp_predict, mlr_predict, knn_predict))
+# pred = mlr.classes_[np.argmax(combined_probs, axis=1)%3]
 
-# print(accuracy_score(pred, y_test))
+all_probs = 2*rf_predict + svm_predict + 1.1*mlp_predict + mlr_predict + 1.3*knn_predict
+pred = mlr.classes_[np.argmax(all_probs, axis=1)]
 
 # create final dataframe
 pred_frame = pd.DataFrame(columns=['filename', 'label'])
@@ -79,4 +80,4 @@ filenames = test_features.loc[:, 'filename'].values
 pred_frame = pd.DataFrame({'filename': filenames, 'label': pred})
 
 # save features to csv
-pred_frame.to_csv('ensemble-max.csv', index=False)
+pred_frame.to_csv('ensemble.csv', index=False)
